@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 class AppTextField extends StatelessWidget {
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String hint;
   final IconData icon;
   final TextInputType keyboardType;
@@ -11,9 +11,12 @@ class AppTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final String? label;
 
+  final ValueChanged<String>? onChanged;
+  final String? errorText;
+
   const AppTextField({
     super.key,
-    required this.controller,
+    this.controller,
     required this.hint,
     required this.icon,
     this.keyboardType = TextInputType.text,
@@ -21,6 +24,8 @@ class AppTextField extends StatelessWidget {
     this.suffixIcon,
     this.validator,
     this.label,
+    this.onChanged,
+    this.errorText,
   });
 
   @override
@@ -40,46 +45,73 @@ class AppTextField extends StatelessWidget {
           ),
           const SizedBox(height: 8),
         ],
+
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           obscureText: obscure,
           validator: validator,
+          onChanged: onChanged, // ✅ Bloc hook
+
           style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 14,
           ),
+
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle:
-                const TextStyle(color: AppColors.textMuted, fontSize: 14),
-            prefixIcon: Icon(icon, color: AppColors.textMuted, size: 20),
+            errorText: errorText, // ✅ Bloc error stream
+
+            hintStyle: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 14,
+            ),
+
+            prefixIcon: Icon(
+              icon,
+              color: AppColors.textMuted,
+              size: 20,
+            ),
+
             suffixIcon: suffixIcon,
+
             filled: true,
             fillColor: AppColors.card,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: Color(0xFFE8E2D9)),
             ),
+
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: Color(0xFFE8E2D9)),
             ),
+
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: AppColors.primary, width: 1.5),
+              borderSide: const BorderSide(
+                color: AppColors.primary,
+                width: 1.5,
+              ),
             ),
+
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: AppColors.error),
             ),
+
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: AppColors.error, width: 1.5),
+              borderSide: const BorderSide(
+                color: AppColors.error,
+                width: 1.5,
+              ),
             ),
           ),
         ),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
-import '../utils/validators.dart';
 import '../utils/constants.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_textfield.dart';
+import '../blocs/auth_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,36 +13,33 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
-  bool _isLoading = false;
+  final AuthBloc _bloc = AuthBloc();
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _bloc.dispose();
     super.dispose();
   }
 
+  // LOGIN
+
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+    await _bloc.submitLogin();
 
-    setState(() => _isLoading = true);
-
-    // TODO: Replace with actual API call using AppConstants.loginEndpoint
-    // Example:
-    // final response = await http.post(
-    //   Uri.parse('${AppConstants.baseUrl}${AppConstants.loginEndpoint}'),
-    //   body: { 'email': _emailController.text, 'password': _passwordController.text },
-    // );
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() => _isLoading = false);
+    final error = await _bloc.errorStream.first;
 
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/restaurants');
+
+    if (error == null) {
+      Navigator.pushReplacementNamed(context, '/restaurants');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -53,6 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+
+              /// HEADER
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 48),
@@ -69,11 +68,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white24,
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      child: const Icon(Icons.restaurant_menu,
-                          color: Colors.white, size: 40),
+                      child: const Icon(
+                        Icons.restaurant_menu,
+                        color: Colors.white,
+                        size: 40,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
@@ -96,102 +98,120 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-          
+              /// FORM
               Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 36),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Email
-                      AppTextField(
-                        controller: _emailController,
-                        hint: 'Enter your email',
-                        icon: Icons.email_outlined,
-                        label: 'Email Address',
-                        keyboardType: TextInputType.emailAddress,
-                        validator: Validators.validateEmail,
-                      ),
+                  horizontal: 24,
+                  vertical: 36,
+                ),
+                child: Column(
+                  children: [
 
-                      const SizedBox(height: 20),
+                    /// EMAIL
+                    StreamBuilder<String>(
+                      stream: _bloc.emailStream,
+                      builder: (context, snapshot) {
+                        return AppTextField(
+                          hint: 'Enter your email',
+                          icon: Icons.email_outlined,
+                          label: 'Email Address',
+                          keyboardType: TextInputType.emailAddress,
+                          errorText: snapshot.error?.toString(),
+                          onChanged: _bloc.changeEmail,
+                        );
+                      },
+                    ),
 
-                      // Password
-                      AppTextField(
-                        controller: _passwordController,
-                        hint: 'Enter your password',
-                        icon: Icons.lock_outline,
-                        label: 'Password',
-                        obscure: _obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: AppColors.textMuted,
-                          ),
-                          onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword),
+                    const SizedBox(height: 20),
+
+                    /// PASSWORD
+                    StreamBuilder<String>(
+                      stream: _bloc.loginPasswordStream,
+                      builder: (context, snapshot) {
+                        return AppTextField(
+                          hint: 'Enter your password',
+                          icon: Icons.lock_outline,
+                          label: 'Password',
+                          obscure: true,
+                          errorText: snapshot.error?.toString(),
+                          onChanged: _bloc.changePassword,
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    /// LOGIN BUTTON (WITH LOADING)
+                    StreamBuilder<bool>(
+                      stream: _bloc.loadingStream,
+                      initialData: false,
+                      builder: (context, loadingSnapshot) {
+                        return StreamBuilder<bool>(
+                          stream: _bloc.isLoginValid,
+                          builder: (context, validSnapshot) {
+                            final isLoading =
+                                loadingSnapshot.data ?? false;
+                            final isValid =
+                                validSnapshot.data ?? false;
+
+                            return AppButton(
+                              label: isLoading
+                                  ? 'Logging in...'
+                                  : 'Log In',
+                              isLoading: isLoading,
+                              onPressed:
+                                  (isValid && !isLoading)
+                                      ? _login
+                                      : null,
+                            );
+                          },
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    /// DIVIDER
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Divider(color: Color(0xFFE0D9CF)),
                         ),
-                        validator: Validators.validatePassword,
-                      ),
-                      const SizedBox(height: 28),
-                      // Login button
-                      AppButton(
-                        label: 'Log In',
-                        isLoading: _isLoading,
-                        onPressed: _login,
-                      ),
-
-                      const SizedBox(height: 28),
-
-                      // Divider
-                      Row(
-                        children: [
-                          const Expanded(
-                              child: Divider(color: Color(0xFFE0D9CF))),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text(
-                              'or',
-                              style: TextStyle(
-                                  color: AppColors.textMuted, fontSize: 13),
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
                           ),
-                          const Expanded(
-                              child: Divider(color: Color(0xFFE0D9CF))),
-                        ],
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Sign up redirect
-                      Center(
-                        child: GestureDetector(
-                          onTap: () => Navigator.pushReplacementNamed(
-                              context, '/signup'),
-                          child: RichText(
-                            text: const TextSpan(
-                              text: "Don't have an account? ",
-                              style: TextStyle(
-                                  color: AppColors.textMuted, fontSize: 14),
-                              children: [
-                                TextSpan(
-                                  text: 'Sign Up',
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                          child: Text(
+                            'or',
+                            style: TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 13,
                             ),
                           ),
                         ),
+                        const Expanded(
+                          child: Divider(color: Color(0xFFE0D9CF)),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    /// SIGNUP NAV
+                    GestureDetector(
+                      onTap: () => Navigator.pushReplacementNamed(
+                        context,
+                        '/signup',
                       ),
-                    ],
-                  ),
+                      child: const Text(
+                        "Don't have an account? Sign Up",
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

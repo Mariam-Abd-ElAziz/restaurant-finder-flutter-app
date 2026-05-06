@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "128630190324",
+    "project_id": "restaurant-finder-fe647",
+    "storage_bucket": "restaurant-finder-fe647.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:128630190324:android:176b40877872b568d7eea1",
+        "android_client_info": {
+          "package_name": "com.example.restaurant_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5XyCE71n-qYU539U1lw5RADLqWbq5pWs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
