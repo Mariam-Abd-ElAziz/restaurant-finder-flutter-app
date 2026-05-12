@@ -15,12 +15,21 @@ class Product {
     required this.isAvailable,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) => Product(
-        id: json['id'],
-        name: json['name'],
-        description: json['description'] ?? '',
-        price: (json['price'] ?? 0.0).toDouble(),
-        category: json['category'] ?? 'Other',
-        isAvailable: json['is_available'] ?? true,
-      );
+  factory Product.fromJson(Map<String, dynamic> json) {
+
+    final random = Random();
+
+    const availableNames = ['Spaghetti Carbonara', 'Tacos al Pastor', 'Sushi Platter', 'Vegan Buddha Bowl', 'Grilled Ribeye Steak'];
+    const availableCategories = ['Italian', 'Mexican', 'Japanese', 'Vegan', 'Steakhouse'];
+
+    return Product(
+      id: json['id'],
+      name: availableNames[random.nextInt(availableNames.length)],
+      description: json['description'] ?? '',
+      price: (json['price'] as num).toDouble().clamp(3.0, 200.0),
+      category: availableCategories[random.nextInt(availableCategories.length)],
+      isAvailable: Random().nextBool(),
+    );
+    
+  }
 }
