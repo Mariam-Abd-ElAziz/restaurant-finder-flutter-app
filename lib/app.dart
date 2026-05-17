@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'theme/app_theme.dart';
 import 'utils/constants.dart';
+import 'services/repository.dart';
+import 'cubits/restaurant_cubit.dart';
+import 'cubits/product_cubit.dart';
+import 'cubits/search_cubit.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/restaurants_screen.dart';
@@ -12,18 +18,38 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppConstants.appName,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.theme,
-      initialRoute: AppRoutes.login,
-      routes: {
-        AppRoutes.login:       (_) => const LoginScreen(),
-        AppRoutes.signup:      (_) => const SignupScreen(),
-        AppRoutes.restaurants: (_) => const RestaurantsScreen(),
-        AppRoutes.products:    (_) => const ProductsScreen(),
-        AppRoutes.search:      (_) => const SearchScreen(),
-      },
+    final repository = Repository();
+
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<Repository>(create: (_) => repository),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<RestaurantCubit>(
+            create: (_) => RestaurantCubit(repository),
+          ),
+          BlocProvider<ProductCubit>(
+            create: (_) => ProductCubit(repository),
+          ),
+          BlocProvider<SearchCubit>(
+            create: (_) => SearchCubit(repository),
+          ),
+        ],
+        child: MaterialApp(
+          title: AppConstants.appName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.theme,
+          initialRoute: AppRoutes.login,
+          routes: {
+            AppRoutes.login:       (_) => const LoginScreen(),
+            AppRoutes.signup:      (_) => const SignupScreen(),
+            AppRoutes.restaurants: (_) => const RestaurantsScreen(),
+            AppRoutes.products:    (_) => const ProductsScreen(),
+            AppRoutes.search:      (_) => const SearchScreen(),
+          },
+        ),
+      ),
     );
   }
 }

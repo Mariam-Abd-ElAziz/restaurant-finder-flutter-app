@@ -5,6 +5,7 @@ class Product {
   final double price;
   final String category;
   final bool isAvailable;
+  final int? restaurantId; // to support filtering products per restaurant
 
   const Product({
     required this.id,
@@ -13,6 +14,7 @@ class Product {
     required this.price,
     required this.category,
     required this.isAvailable,
+    this.restaurantId,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -29,7 +31,7 @@ class Product {
       price: (json['price'] as num).toDouble().clamp(3.0, 200.0),
       category: availableCategories[random.nextInt(availableCategories.length)],
       isAvailable: Random().nextBool(),
+      restaurantId: int.tryParse(json['restaurant_id']?.toString() ?? ''),
     );
-    
   }
 }
