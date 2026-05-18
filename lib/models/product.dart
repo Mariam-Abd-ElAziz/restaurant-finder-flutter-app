@@ -1,37 +1,36 @@
+import 'dart:math';
+
 class Product {
   final int id;
   final String name;
   final String description;
   final double price;
-  final String category;
   final bool isAvailable;
-  final int? restaurantId; // to support filtering products per restaurant
+  final int? restaurantId;
 
   const Product({
     required this.id,
     required this.name,
     required this.description,
     required this.price,
-    required this.category,
     required this.isAvailable,
     this.restaurantId,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
-
-    final random = Random();
-
-    const availableNames = ['Spaghetti Carbonara', 'Tacos al Pastor', 'Sushi Platter', 'Vegan Buddha Bowl', 'Grilled Ribeye Steak'];
-    const availableCategories = ['Italian', 'Mexican', 'Japanese', 'Vegan', 'Steakhouse'];
-
     return Product(
-      id: json['id'],
-      name: availableNames[random.nextInt(availableNames.length)],
+      id: int.tryParse(json['id'].toString()) ?? 0, // ✅ FIX
+
+      name: json['name'] ?? '',
+
       description: json['description'] ?? '',
-      price: (json['price'] as num).toDouble().clamp(3.0, 200.0),
-      category: availableCategories[random.nextInt(availableCategories.length)],
-      isAvailable: Random().nextBool(),
-      restaurantId: int.tryParse(json['restaurant_id']?.toString() ?? ''),
+
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      isAvailable: json['isAvailable'] ?? false,
+
+      restaurantId: json['restaurantId'] != null
+          ? int.tryParse(json['restaurantId'].toString())
+          : null,
     );
   }
 }

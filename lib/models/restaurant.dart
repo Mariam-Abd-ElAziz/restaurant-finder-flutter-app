@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Restaurant {
   final int id;
   final String name;
@@ -5,11 +7,10 @@ class Restaurant {
   final String address;
   final double rating;
   final int reviewCount;
-  final DateTime deliveryTime;
   final bool isOpen;
   final List<String> tags;
-  final double? latitude;
-  final double? longitude;
+  final double latitude;
+  final double longitude;
 
   const Restaurant({
     required this.id,
@@ -18,47 +19,43 @@ class Restaurant {
     required this.address,
     required this.rating,
     required this.reviewCount,
-    required this.deliveryTime,
     required this.isOpen,
     required this.tags,
-    this.latitude,
-    this.longitude,
+    required this.latitude,
+    required this.longitude,
   });
 
-  factory Restaurant.fromJson(Map<String, dynamic> json) {
+factory Restaurant.fromJson(Map<String, dynamic> json) {
+  return Restaurant(
+    // 🔴 FIX 1: id is STRING in API
+    id: int.parse(json['id'].toString()),
 
-    final random = Random();
+    name: json['name'] ?? '',
 
-    // 1. Define hardcoded lists
-    const availableNames = ['The Golden Fork', 'Bistro 24', 'Urban Eats', 'Spice Route', 'Pasta Palace'];
-    const availableCategories = ['Italian', 'Mexican', 'Asian Fusion', 'Vegan', 'Steakhouse'];
-    const availableAddresses = [
-      '123 Main St, Springfield',
-      '456 Elm St, Shelbyville',
-      '789 Oak St, Capital City',
-      '321 Maple Ave, Ogdenville',
-      '654 Pine St, North Haverbrook'
-    ];
-    const availableTags = ['Fast Delivery', 'High Rated', 'Organic', 'Family Friendly', 'Late Night', 'Discounted'];
+    // 🔴 FIX 2: API uses "Category" not "category"
+    category: json['Category'] ?? '',
 
-    // 2. Logic for random subset of tags
-    // We shuffle the list and take a random number of elements (e.g., 1 to 3 tags)
-    final shuffledTags = List<String>.from(availableTags)..shuffle(random);
-    final randomSubset = shuffledTags.take(random.nextInt(3) + 1).toList();
+    address: json['address'] ?? '',
 
-    return Restaurant(
-      id: json['id'],
-      name: availableNames[random.nextInt(availableNames.length)],
-      category: availableCategories[random.nextInt(availableCategories.length)],
-      address: availableAddresses[random.nextInt(availableAddresses.length)],
-      rating: (json['rating'] as num).toDouble().clamp(0.0, 5.0),
-      reviewCount: json['review_count'] ?? 0,
-      deliveryTime: DateTime.parse(json['deliveryTime']),
-      isOpen: Random().nextBool(),
-      tags: randomSubset,
-      latitude: json['latitude']?.toDouble(),
-      longitude: json['longitude']?.toDouble(),
-    );
+    // rating is int in API → convert to double safely
+    rating: double.parse(json['rating'].toString()),
 
-  }
+    reviewCount: int.parse(json['reviewCount'].toString()),
+
+  
+
+    isOpen: json['isOpen'] ?? false,
+
+    // API gives empty list → safe
+    tags: List<String>.from(json['tags'] ?? []),
+
+    latitude: json['latitude'] == null
+        ? 0.0
+        : double.parse(json['latitude'].toString()),
+
+    longitude: json['longitude'] == null
+        ? 0.0
+        : double.parse(json['longitude'].toString()),
+  );
+}
 }

@@ -160,45 +160,7 @@ class RestaurantCard extends StatelessWidget {
 
                   const SizedBox(height: 10),
 
-                  // Delivery time + tags
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE8E2D9)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.access_time_rounded,
-                                size: 12, color: AppColors.accent),
-                            const SizedBox(width: 4),
-                            Text(
-                              restaurant.deliveryTime,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppColors.accent,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          restaurant.tags.take(3).join(' · '),
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.textMuted),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
+                  
                 ],
               ),
             ),

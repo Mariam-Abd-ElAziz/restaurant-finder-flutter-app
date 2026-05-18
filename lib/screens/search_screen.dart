@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'map_view_screen.dart';
 import '../theme/app_colors.dart';
 import '../utils/constants.dart';
 import '../widgets/restaurant_card.dart';
@@ -272,77 +272,12 @@ class _SearchScreenState extends State<SearchScreen> {
       },
     );
   }
-
-  Widget _buildMapView(SearchLoaded state) {
-    return Stack(
-      children: [
-        Container(
-          color: const Color(0xFFE8E4DC),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.map_rounded,
-                    size: 80,
-                    color: AppColors.primary.withOpacity(0.25)),
-                const SizedBox(height: 16),
-                const Text('Map View',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textMuted)),
-                const SizedBox(height: 6),
-                const Text('Integrate google_maps_flutter here',
-                    style: TextStyle(
-                        fontSize: 13, color: AppColors.textMuted)),
-              ],
-            ),
-          ),
-        ),
-        ...state.visible.asMap().entries.map((entry) {
-          final index = entry.key;
-          final r = entry.value;
-          return Positioned(
-            bottom: 100 + (index * 80.0),
-            left: 40 + (index * 90.0),
-            child: GestureDetector(
-              onTap: () => _showRestaurantBottomSheet(r),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.4),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      r.name.split(' ').first,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.arrow_drop_down,
-                      color: AppColors.primary, size: 20),
-                ],
-              ),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
+Widget _buildMapView(SearchLoaded state) {
+  return MapViewScreen(
+    productName: state.query,
+    restaurants: state.allResults,
+  );
+}
   Widget _buildPagination(BuildContext context, SearchLoaded state) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

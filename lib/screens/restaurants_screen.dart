@@ -96,56 +96,7 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
                 ),
               ),
 
-              // ── Category filter chips ───────────────────────────────────
-              SizedBox(
-                height: 54,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 10),
-                  itemCount: AppConstants.restaurantCategories.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemBuilder: (context, index) {
-                    final filter =
-                        AppConstants.restaurantCategories[index];
-                    final selected = state is RestaurantLoaded
-                        ? state.selectedCategory == filter
-                        : filter == 'All';
-                    return GestureDetector(
-                      onTap: () => context
-                          .read<RestaurantCubit>()
-                          .applyFilter(category: filter),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? AppColors.primary
-                              : AppColors.card,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: selected
-                                ? AppColors.primary
-                                : const Color(0xFFE0D9CF),
-                          ),
-                        ),
-                        child: Text(
-                          filter,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: selected
-                                ? Colors.white
-                                : AppColors.textMuted,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
+             
               // ── Body ───────────────────────────────────────────────────
               Expanded(child: _buildBody(context, state)),
             ],

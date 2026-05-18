@@ -17,7 +17,7 @@ class Repository {
 
   Future<List<Product>> fetchProducts({int? restaurantId}) async {
     final uri = restaurantId != null
-        ? Uri.parse('$_baseUrl/product?restaurant_id=$restaurantId')
+        ? Uri.parse('$_baseUrl/product?restaurantId=$restaurantId')
         : Uri.parse('$_baseUrl/product');
 
     final response = await http.get(uri);
@@ -35,7 +35,7 @@ class Repository {
   }
 
   Future<List<Restaurant>> searchByProduct(String productName) async {
-    final results = await Future.wait([fetchEateries(), fetchProducts()]);
+    final results = await Future.wait([fetchRestaurants(), fetchProducts()]);
     final restaurants = results[0] as List<Restaurant>;
     final products    = results[1] as List<Product>;
 
