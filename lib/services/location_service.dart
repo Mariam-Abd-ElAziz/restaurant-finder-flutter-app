@@ -1,53 +1,68 @@
 import 'package:geolocator/geolocator.dart';
 
 class LocationService {
-  /// Returns the current device position.
-  /// Handles permission requests automatically.
+  /// Get current location safely
   static Future<Position> getCurrentPosition() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
     if (!serviceEnabled) {
-      throw Exception('Location services are disabled. Please enable GPS.');
+      throw Exception('GPS is disabled. Please enable location services.');
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        throw Exception('Location permission denied.');
-      }
+    }
+
+    if (permission == LocationPermission.denied) {
+      throw Exception('Location permission denied.');
     }
 
     if (permission == LocationPermission.deniedForever) {
-      await Geolocator.openAppSettings();
       throw Exception(
-          'Location permission permanently denied. Please allow it from app settings.');
+        'Permission permanently denied. Enable it from app settings.',
+      );
     }
 
-    return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+    try {
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+    } catch (e) {
+      throw Exception('Failed to get location: $e');
+    }
   }
 
-  /// Calculates distance in kilometers between two lat/lng points.
+  /// Distance in KM
   static double distanceBetween(
     double startLat,
     double startLng,
     double endLat,
     double endLng,
   ) {
-    double distanceInMeters = Geolocator.distanceBetween(
+    final meters = Geolocator.distanceBetween(
       startLat,
       startLng,
       endLat,
       endLng,
     );
-    return distanceInMeters / 1000.0; // convert to km
-  }
-  static Future<void> openLocationSettingsIfNeeded() async {
-  bool enabled = await Geolocator.isLocationServiceEnabled();
 
-  if (!enabled) {
-    await Geolocator.openLocationSettings();
+    return meters / 1000;
   }
-}
+
+  /// Open GPS settings
+  static Future<void> openLocationSettingsIfNeeded() async {
+    final enabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!enabled) {
+      await Geolocator.openLocationSettings();
+    }
+  }
+
+  /// Optional: open app settings (for deniedForever cases)
+  static Future<void> openAppSettings() async {
+    await Geolocator.openAppSettings();
+  }
 }

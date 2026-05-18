@@ -63,7 +63,8 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const SearchScreen());
 
       case AppRoutes.directions:
-          final restaurant = settings.arguments as Restaurant;        return MaterialPageRoute(
+          final restaurant = settings.arguments as Restaurant;       
+           return MaterialPageRoute(
           builder: (_) => DirectionsScreen(restaurant: restaurant),
         );
     }
